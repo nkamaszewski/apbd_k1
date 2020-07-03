@@ -70,5 +70,62 @@ namespace apbd_kolokwium1.DAL
             }
             return result; 
         }
+
+        public StatusDTO DeleteAction(int id)
+        {
+
+            StatusDTO result = new StatusDTO()
+            {
+                Error = false,
+                Message = ""
+            };
+
+            using (var client = new SqlConnection(SqlConn))
+            {
+                using (var command = new SqlCommand())
+                {
+                    command.Connection = client;
+                    client.Open();
+
+                    var transaction = client.BeginTransaction();
+                    command.Transaction = transaction;
+
+                    try
+                    {
+
+                        command.CommandText = $"SELECT IdAction FROM Action WHERE IdAction = @IdAction AND EndTime IS NULL";
+                        command.Parameters.AddWithValue("IdAction", id);
+
+                        var dataReader = command.ExecuteReader();
+
+                        if (!dataReader.Read())
+                        {
+                            result.Error = true;
+                            result.Message = "Nie istnieje akcja o podanym id lub nie jest w trakcie";
+                            return result;
+                        }
+                        dataReader.Close();
+
+                        command.CommandText = $"DELETE FROM Firefighter_Action WHERE IdAction = @IdAction";
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = $"DELETE FROM Action WHERE IdAction = @IdAction";
+                        command.ExecuteNonQuery();
+
+                        transaction.Commit();
+
+                        result.Error = false;
+                        result.Message = "Usunieto akcje o podanym id";
+                    }
+                    catch (SqlException exc) {
+                        transaction.Rollback();
+                        result.Error = true;
+                        result.Message = "wystapil blad w bazie danych";
+                    }
+
+                    return result;
+                }
+            }
+        }
     }
 }

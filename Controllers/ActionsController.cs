@@ -32,5 +32,18 @@ namespace apbd_kolokwium1.Controllers
 
             return Ok(actionAndFirefigthersDTO);
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteAction(int id)
+        {
+            StatusDTO statusDTO = _actionDBService.DeleteAction(id);
+
+            if (statusDTO.Error)
+            {
+                return BadRequest(statusDTO.Message);
+            }
+
+            return Ok(statusDTO.Message);
+        }
     }
 }

@@ -9,5 +9,7 @@ namespace apbd_kolokwium1.DAL
     public interface IActionDBService
     {
         public ActionAndFirefigthersDTO GetActionAndFirefighters(int id);
+
+        public StatusDTO DeleteAction(int id);
     }
 }
